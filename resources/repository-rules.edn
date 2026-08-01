@@ -1,0 +1,9 @@
+{:schema "kotoba.repository-role-rules.v0"
+ :this-repo
+ {:name "engi-node"
+  :prefix nil
+  :role :service
+  :execution :on-demand
+  :must [:accept-peer-connections :use-engi-wire :state-that-it-does-not-vote]
+  :must-not [:reimplement-consensus :claim-a-validator-role]
+  :depends-on ["kotoba-lang/engi"]}}

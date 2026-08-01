@@ -1,0 +1,7 @@
+{:deps {:aliases []}
+ :builds {:worker {:target :esm
+                   :output-dir "dist"
+                   :runtime :custom
+                   :modules {:worker {:exports {default engi-node.worker/handler
+                                                Hub engi-node.worker/Hub}}}
+                   :compiler-options {:infer-externs :auto}}}}

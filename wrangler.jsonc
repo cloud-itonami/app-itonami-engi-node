@@ -1,0 +1,11 @@
+{
+  "name": "engi-node",
+  "main": "dist/worker.js",
+  "compatibility_date": "2026-08-01",
+  // One Durable Object holds every peer connection. A validator's peer set is
+  // shared state, so it needs a single place — the same reason the exchange
+  // sequencer is a DO, arrived at independently.
+  "durable_objects": { "bindings": [{ "name": "HUB", "class_name": "Hub" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hub"] }],
+  "observability": { "enabled": true }
+}
