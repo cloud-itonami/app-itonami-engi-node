@@ -17,9 +17,13 @@
   assumed to be the other thing."
   (:require [engi.net :as net]
             [engi.net.server :as srv]
+            [engi.attest :as att]
+            [engi.attest.ed25519 :as ed]
             [engi.wire :as wire]))
 
-(def ^:const code-version "1")
+(def ^:const code-version "2")
+(def ^:const chain-id "engi-devnet-1")
+(def ^:const quorum 3)
 
 (defn- json [x status]
   (js/Response. (js/JSON.stringify (clj->js x))
@@ -44,8 +48,22 @@
       (.accept server)
       (srv/attach! (.-registry this) peer server
                    {:on-message (fn [p m]
-                                  (swap! (.-seen this) conj
-                                         {:peer p :type (name (:type m))})
+                                  ;; A new-view carries a certificate. Checking
+                                  ;; it here is the point: until now the Worker
+                                  ;; only proved a message could arrive, not
+                                  ;; that what arrived could be believed.
+                                  (if-let [qc (:high-qc m)]
+                                    (-> (ed/verify-certificate! qc chain-id quorum)
+                                        (.then (fn [r]
+                                                 (swap! (.-seen this) conj
+                                                        {:peer p :type (name (:type m))
+                                                         :signed (att/signed? qc)
+                                                         :witnesses (count (:engi.qc/witnesses qc))
+                                                         :verified (nil? r)
+                                                         :reason (when r (name r))}))))
+                                    (swap! (.-seen this) conj
+                                           {:peer p :type (name (:type m))
+                                            :signed false}))
                                   ;; answer with something the peer can decode,
                                   ;; so the round trip is verifiable from the
                                   ;; other end rather than only from the log
@@ -77,7 +95,8 @@
                :peers (srv/live (.-registry this))
                :peer-count (srv/peer-count (.-registry this))
                :seen (vec (take-last 10 @(.-seen this)))
-               :role "accepts peer connections; runs no pacemaker and casts no votes"}
+               :chain-id chain-id
+               :role "accepts and VERIFIES certificates; runs no pacemaker and casts no votes"}
               200)
 
         :else (json {:ok false :reason "not-found"} 404)))))

@@ -10,10 +10,30 @@ GET /head   what it is, who is connected, what it last saw
 GET /peer   WebSocket upgrade — the peer connection itself
 ```
 
+## It verifies certificates
+
+A `new-view` carries a quorum certificate. The hub checks every signature in
+it with WebCrypto and records the verdict. Until this, it only proved a
+message could arrive — not that what arrived could be believed.
+
+Measured against the deployed Worker with real Ed25519 keys
+(`engi`'s `script/check-worker-signed.cljs`), sending an honest certificate
+and one with two witnesses' signatures exchanged:
+
+```json
+{"type":"new-view","signed":true,"witnesses":3,"verified":true, "reason":null},
+{"type":"new-view","signed":true,"witnesses":3,"verified":false,"reason":"bad-signature"}
+```
+
+The forged case is the one worth having: each signature is individually valid
+and neither is valid where it now sits, so what it proves is that the witness
+is bound into the signed payload rather than merely listed beside it.
+
 ## It is not a validator, and says so
 
 It runs no pacemaker and casts no votes. It accepts connections, decodes
-messages with the same `engi.wire` a validator uses, and reports what it saw.
+messages with the same `engi.wire` a validator uses, verifies certificates
+with the same `engi.attest`, and reports what it saw.
 That is enough to answer the question it exists to answer — **does the
 transport work in a Worker** — without pretending to a consensus role nothing
 here is ready for. `/head` states it in its own response, because a service
@@ -40,6 +60,13 @@ hub /head       : {"peers":["peer-1"],"peer-count":1,
 ```
 
 Reproduce with `engi`'s `script/check-worker.cljs`.
+
+## A Durable Object does not pick up a deploy
+
+It runs the code it started with until evicted. `code-version` in `/head`
+exists because of it, and it caught this deploy too: the first run after
+shipping certificate verification still reported version 1 and the old role
+string. **Check `/head` before believing a deploy.**
 
 ## A Durable Object forgets
 

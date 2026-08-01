@@ -4,4 +4,4 @@
         thheller/shadow-cljs {:mvn/version "2.28.20"}
         io.github.kotoba-lang/engi
         {:git/url "https://github.com/kotoba-lang/engi.git"
-         :git/sha "68b50e7dc5ab9f4cde582bdba9db2f60b7f18d38"}}}
+         :git/sha "d75eb0544b31ec0a19d5cb0da7496fd507ae37dd"}}}
