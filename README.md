@@ -83,5 +83,5 @@ because it holds nothing worth keeping.
 ## Build
 
 ```bash
-npm install && npx shadow-cljs release worker && npx wrangler deploy
+npm install && amu compile --target wasm32-browser worker && npx wrangler deploy
 ```
