@@ -3,5 +3,6 @@
         org.clojure/clojurescript {:mvn/version "1.11.132"}
         thheller/shadow-cljs {:mvn/version "2.28.20"}
         io.github.kotoba-lang/engi
-        {:git/url "https://github.com/kotoba-lang/engi.git"
-         :git/sha "d75eb0544b31ec0a19d5cb0da7496fd507ae37dd"}}}
+        {:git/url "https://github.com/kotoba-lang/kotoba.git"
+         :git/sha "b94158fd48ec541b70d3c455912a06f407537ddc"
+         :deps/root "lib/kotoba.engi"}}}
